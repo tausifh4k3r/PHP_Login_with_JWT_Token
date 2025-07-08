@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Logging Out...</title>
+</head>
+<body>
+  <script>
+    // Clear tokens
+    localStorage.removeItem('accessToken');
+
+    // Optional: Clear refresh token via API call
+    fetch('./auth/logout.php', {
+      method: 'POST',
+      credentials: 'include'
+    }).finally(() => {
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

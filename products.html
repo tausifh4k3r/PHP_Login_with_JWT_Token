@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Products</title>
+  <style>
+    body { font-family: Arial; margin: 2rem; }
+    table { border-collapse: collapse; width: 70%; }
+    th, td { padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h2>Product List</h2>
+  <table id="productTable">
+    <tr><th>Name</th><th>Price</th></tr>
+  </table>
+  <br>
+  <a href="./index.html">Back to User Details</a>
+
+  <script>
+    async function loadProducts() {
+      const token = localStorage.getItem('accessToken');
+      const res = await fetch('./auth/get_products.php', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (res.status === 401) return tryRefresh(loadProducts);
+
+      const products = await res.json();
+      const table = document.getElementById("productTable");
+
+      products.forEach(p => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${p.name}</td><td>$${p.price}</td>`;
+        table.appendChild(row);
+      });
+    }
+
+    async function tryRefresh(callback) {
+      const res = await fetch('./auth/refresh_token.php');
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('accessToken', data.accessToken);
+        callback();
+      } else {
+        alert("Session expired. Please login again.");
+        localStorage.removeItem('accessToken');
+        location.href = "login.html";
+      }
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
